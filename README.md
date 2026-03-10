@@ -1,1 +1,1 @@
-# zebar-themes
+# day-n-night
