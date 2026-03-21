@@ -55,76 +55,93 @@ function App() {
       }}
     >
       <div class="section">
-        {output.glazewm?.allWorkspaces && (
-          <div>
-            <div class="mx-auto w-full max-w-md">
-              <div class="flex h-6 rounded bg-gray-200 dark:bg-gray-800">
-                {output.glazewm.isPaused ? (
-                  <button
-                    class="flex-1 rounded bg-white px-4 py-0.5 text-center font-bold shadow dark:bg-black"
-                    onclick={() => output.glazewm.runCommand("wm-toggle-pause")}
-                  >
-                    Paused
-                  </button>
-                ) : (
-                  output.glazewm.allWorkspaces
-                    .map((w) => (
-                      <button
-                        class={`flex-1 rounded px-4 py-0.5 text-center font-bold ${w.hasFocus ? "bg-white shadow dark:bg-black" : "text-gray-400"}`}
-                        onclick={() =>
-                          output.glazewm.runCommand(
-                            w.hasFocus
-                              ? "wm-toggle-pause"
-                              : `focus --workspace ${w.name}`,
-                          )
-                        }
-                        onContextMenu={(e) => {
-                          e.preventDefault();
-                          output.glazewm.runCommand(
-                            `move --workspace ${w.name}`,
-                          );
-                          output.glazewm.runCommand(
-                            `focus --workspace ${w.name}`,
-                          );
-                        }}
-                      >
-                        {w.name}
-                      </button>
-                    ))
-                    .concat(
-                      output.glazewm.allWorkspaces.length < 9
-                        ? [
-                            <button
-                              class="flex-1 rounded px-4 py-0.5 text-center font-bold text-gray-400"
-                              onclick={() =>
-                                output.glazewm.runCommand(
-                                  `focus --workspace ${getUnusedWorkspaceName(output.glazewm.allWorkspaces)}`,
-                                )
-                              }
-                              onContextMenu={(e) => {
-                                e.preventDefault();
-                                const unusedWorkspaceName =
-                                  getUnusedWorkspaceName(
-                                    output.glazewm.allWorkspaces,
-                                  );
-                                output.glazewm.runCommand(
-                                  `move --workspace ${unusedWorkspaceName}`,
-                                );
-                                output.glazewm.runCommand(
-                                  `focus --workspace ${unusedWorkspaceName}`,
-                                );
-                              }}
-                            >
-                              <Plus strokeWidth={3} size={14} />
-                            </button>,
-                          ]
-                        : [],
-                    )
-                )}
-              </div>
-            </div>
+        {output.glazewm && (
+          <div
+            class="provider"
+            onclick={() => output.glazewm.runCommand("toggle-tiling-direction")}
+          >
+            <button class="cursor-pointer p-0.5">
+              {output.glazewm.tilingDirection}
+            </button>
           </div>
         )}
+        {output.glazewm?.allWorkspaces && (
+          <div class="provider">
+            {output.glazewm.isPaused ? (
+              <button
+                class="cursor-pointer rounded p-0.5 text-center"
+                onclick={() => output.glazewm.runCommand("wm-toggle-pause")}
+              >
+                paused
+              </button>
+            ) : (
+              output.glazewm.allWorkspaces
+                .map((workspace) => (
+                  <button
+                    class={`flex cursor-pointer gap-1 rounded px-2 py-0.5 text-center ${workspace.hasFocus ? "bg-white shadow dark:bg-black" : "text-gray-400"}`}
+                    onclick={() =>
+                      output.glazewm.runCommand(
+                        workspace.hasFocus
+                          ? "wm-toggle-pause"
+                          : `focus --workspace ${workspace.name}`,
+                      )
+                    }
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      output.glazewm.runCommand(
+                        `move --workspace ${workspace.name}`,
+                      );
+                      output.glazewm.runCommand(
+                        `focus --workspace ${workspace.name}`,
+                      );
+                    }}
+                  >
+                    <span>{workspace.name}</span>
+                    {output.glazewm.allWindows
+                      .filter((window) => window.parentId === workspace.id)
+                      .map((window) => (
+                        <span
+                          title={window.title}
+                          class={`max-w-15 overflow-hidden text-ellipsis whitespace-nowrap ${window.hasFocus ? "font-bold" : ""}`}
+                        >
+                          {window.title}
+                        </span>
+                      ))}
+                  </button>
+                ))
+                .concat(
+                  output.glazewm.allWorkspaces.length < 9
+                    ? [
+                        <button
+                          class="cursor-pointer rounded px-4 py-0.5 text-center text-gray-400"
+                          onclick={() =>
+                            output.glazewm.runCommand(
+                              `focus --workspace ${getUnusedWorkspaceName(output.glazewm.allWorkspaces)}`,
+                            )
+                          }
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            const unusedWorkspaceName = getUnusedWorkspaceName(
+                              output.glazewm.allWorkspaces,
+                            );
+                            output.glazewm.runCommand(
+                              `move --workspace ${unusedWorkspaceName}`,
+                            );
+                            output.glazewm.runCommand(
+                              `focus --workspace ${unusedWorkspaceName}`,
+                            );
+                          }}
+                        >
+                          <Plus strokeWidth={3} size={14} />
+                        </button>,
+                      ]
+                    : [],
+                )
+            )}
+          </div>
+        )}
+      </div>
+      <div class="section">
         {output.systray && (
           <div class="provider">
             <For
@@ -153,9 +170,6 @@ function App() {
             </For>
           </div>
         )}
-      </div>
-      <div class="section"></div>
-      <div class="section">
         {output.keyboard && (
           <div class="provider">
             <Keyboard size={16} />
