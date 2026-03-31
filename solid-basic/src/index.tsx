@@ -43,7 +43,17 @@ function App() {
   };
 
   return (
-    <div class="flex h-8 items-center px-1 text-center text-xs dark:text-white">
+    <div
+      class="flex h-8 items-center px-1 text-center text-xs dark:text-white"
+      onwheel={(e) => {
+        if (e?.deltaY > 0) {
+          output.glazewm.runCommand("focus --next-active-workspace");
+        }
+        if (e?.deltaY < 0) {
+          output.glazewm.runCommand("focus --prev-active-workspace");
+        }
+      }}
+    >
       <div class="section">
         {output.glazewm && (
           <div
@@ -56,17 +66,7 @@ function App() {
           </div>
         )}
         {output.glazewm?.allWorkspaces && (
-          <div
-            class="provider"
-            onwheel={(e) => {
-              if (e?.deltaY > 0) {
-                output.glazewm.runCommand("focus --next-active-workspace");
-              }
-              if (e?.deltaY < 0) {
-                output.glazewm.runCommand("focus --prev-active-workspace");
-              }
-            }}
-          >
+          <div class="provider">
             {output.glazewm.isPaused ? (
               <button
                 class="cursor-pointer rounded p-0.5 text-center"
