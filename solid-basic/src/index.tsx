@@ -1,8 +1,19 @@
-import { Cpu, Keyboard, MemoryStick, Plus } from "lucide-solid";
+import {
+  ArrowDown,
+  ArrowUp,
+  Calendar,
+  Cpu,
+  HeadphoneOff,
+  Headphones,
+  MemoryStick,
+  Plus,
+  Thermometer,
+} from "lucide-solid";
 import { createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
-import { For, render } from "solid-js/web";
+import { render } from "solid-js/web";
 import * as zebar from "zebar";
+import Clipboard from "./Clipboard";
 import { useSystemDarkMode } from "./hooks";
 import "./index.css";
 
@@ -10,10 +21,12 @@ const providers = zebar.createProviderGroup({
   audio: { type: "audio" },
   cpu: { type: "cpu" },
   memory: { type: "memory" },
-  systray: { type: "systray" },
-  date: { type: "date" },
+  // systray: { type: "systray" },
   glazewm: { type: "glazewm" },
-  keyboard: { type: "keyboard" },
+  ip: { type: "ip" },
+  date: { type: "date" },
+  network: { type: "network" },
+  weather: { type: "weather" },
 });
 
 render(() => <App />, document.getElementById("root")!);
@@ -22,7 +35,6 @@ function App() {
   useSystemDarkMode();
 
   const [output, setOutput] = createStore(providers.outputMap);
-
   providers.onOutput((outputMap) => setOutput(outputMap));
 
   createEffect(() => {
@@ -32,7 +44,7 @@ function App() {
   });
 
   const getUnusedWorkspaceName = (
-    allWorkspaces: typeof output.glazewm.allWorkspaces,
+    allWorkspaces: zebar.GlazeWmOutput["allWorkspaces"] | undefined[],
   ) => {
     for (let i = 0; i < 9; i++) {
       const curr = String(i + 1);
@@ -42,35 +54,63 @@ function App() {
     }
   };
 
+  const getWeatherInfo = () => {
+    return (
+      JSON.stringify(output.ip, undefined, 2) +
+      "\n" +
+      JSON.stringify(output.weather, undefined, 2)
+    );
+  };
+
+  const getNetworkInfo = () => {
+    if (!output.network) {
+      return "";
+    }
+    return (
+      JSON.stringify(output.network.traffic, undefined, 2) +
+      "\n" +
+      JSON.stringify(output.network.defaultInterface, undefined, 2)
+    );
+  };
+
+  function getDateInfo() {
+    return JSON.stringify(output.date, undefined, 2);
+  }
+
   return (
-    <div
-      class="flex h-8 items-center px-1 text-center text-xs dark:text-white"
-      onwheel={(e) => {
-        if (e?.deltaY > 0) {
-          output.glazewm.runCommand("focus --next-active-workspace");
-        }
-        if (e?.deltaY < 0) {
-          output.glazewm.runCommand("focus --prev-active-workspace");
-        }
-      }}
-    >
+    <div class="flex h-8 items-center px-1 text-center text-xs dark:text-white">
       <div class="section">
         {output.glazewm && (
           <div
             class="provider"
-            onclick={() => output.glazewm.runCommand("toggle-tiling-direction")}
+            onclick={() =>
+              output.glazewm?.runCommand("toggle-tiling-direction")
+            }
           >
             <button class="cursor-pointer p-0.5">
               {output.glazewm.tilingDirection}
             </button>
           </div>
         )}
-        {output.glazewm?.allWorkspaces && (
-          <div class="provider">
+        {output.glazewm && (
+          <div
+            class="provider"
+            onwheel={(e) => {
+              if (!output.glazewm) {
+                return;
+              }
+              if (e.deltaY > 0) {
+                output.glazewm.runCommand("focus --next-active-workspace");
+              }
+              if (e.deltaY < 0) {
+                output.glazewm.runCommand("focus --prev-active-workspace");
+              }
+            }}
+          >
             {output.glazewm.isPaused ? (
               <button
                 class="cursor-pointer rounded p-0.5 text-center"
-                onclick={() => output.glazewm.runCommand("wm-toggle-pause")}
+                onclick={() => output.glazewm?.runCommand("wm-toggle-pause")}
               >
                 paused
               </button>
@@ -78,9 +118,9 @@ function App() {
               output.glazewm.allWorkspaces
                 .map((workspace) => (
                   <button
-                    class={`flex cursor-pointer gap-1 rounded px-2 py-0.5 text-center ${workspace.hasFocus ? "bg-white shadow dark:bg-black" : "text-gray-400"}`}
+                    class={`flex min-w-11 cursor-pointer justify-center gap-1 rounded px-2 py-0.5 ${workspace.hasFocus ? "bg-gray-800/10 shadow dark:bg-gray-200/10" : "text-gray-500 dark:text-gray-400"}`}
                     onclick={() =>
-                      output.glazewm.runCommand(
+                      output.glazewm?.runCommand(
                         workspace.hasFocus
                           ? "wm-toggle-pause"
                           : `focus --workspace ${workspace.name}`,
@@ -88,6 +128,9 @@ function App() {
                     }
                     onContextMenu={(e) => {
                       e.preventDefault();
+                      if (!output.glazewm) {
+                        return;
+                      }
                       output.glazewm.runCommand(
                         `move --workspace ${workspace.name}`,
                       );
@@ -97,7 +140,7 @@ function App() {
                     }}
                   >
                     <span>{workspace.name}</span>
-                    {output.glazewm.allWindows
+                    {output.glazewm?.allWindows
                       .filter((window) => window.parentId === workspace.id)
                       .map((window) => (
                         <span
@@ -113,14 +156,20 @@ function App() {
                   output.glazewm.allWorkspaces.length < 9
                     ? [
                         <button
-                          class="cursor-pointer rounded px-4 py-0.5 text-center text-gray-400"
-                          onclick={() =>
+                          class="cursor-pointer rounded px-4 py-0.5 text-center text-gray-600 dark:text-gray-400"
+                          onclick={() => {
+                            if (!output.glazewm) {
+                              return;
+                            }
                             output.glazewm.runCommand(
                               `focus --workspace ${getUnusedWorkspaceName(output.glazewm.allWorkspaces)}`,
-                            )
-                          }
+                            );
+                          }}
                           onContextMenu={(e) => {
                             e.preventDefault();
+                            if (!output.glazewm) {
+                              return;
+                            }
                             const unusedWorkspaceName = getUnusedWorkspaceName(
                               output.glazewm.allWorkspaces,
                             );
@@ -142,7 +191,7 @@ function App() {
         )}
       </div>
       <div class="section">
-        {output.systray && (
+        {/* {output.systray && (
           <div class="provider">
             <For
               each={output.systray.icons.toSorted((a, b) =>
@@ -158,50 +207,129 @@ function App() {
                     title={icon.tooltip}
                     onClick={(e) => {
                       e.preventDefault();
-                      output.systray.onLeftClick(icon.id);
+                      output.systray?.onLeftClick(icon.id);
                     }}
                     onContextMenu={(e) => {
                       e.preventDefault();
-                      output.systray.onRightClick(icon.id);
+                      output.systray?.onRightClick(icon.id);
                     }}
                   />
                 )
               }
             </For>
           </div>
-        )}
-        {output.keyboard && (
+        )} */}
+        {/* {output.keyboard && (
           <div class="provider">
             <Keyboard size={16} />
             <span>{output.keyboard.layout}</span>
           </div>
+        )} */}
+        {output.weather && (
+          <div class="provider group" title={getWeatherInfo()}>
+            <Clipboard
+              text={getWeatherInfo()}
+              placeholderIcon={
+                <Thermometer class="block group-hover:hidden" size={16} />
+              }
+            />
+            <span>{output.weather.celsiusTemp}</span>
+            <span>°C</span>
+            <span>{output.weather.status.match(/[a-z]+/)?.[0]}</span>
+          </div>
         )}
-        {output.audio && (
-          <div class="provider">
+        {output.ip && output.network?.traffic && (
+          <div class="provider group" title={getNetworkInfo()}>
+            {output.network.traffic.transmitted.bytes >
+            output.network.traffic.received.bytes ? (
+              <>
+                <Clipboard
+                  text={getNetworkInfo()}
+                  placeholderIcon={
+                    <ArrowUp class="block group-hover:hidden" size={16} />
+                  }
+                />
+                <span>
+                  {output.network.traffic.transmitted.siValue.toFixed(1)}
+                </span>
+                <span>{output.network.traffic.transmitted.siUnit}</span>
+              </>
+            ) : (
+              <>
+                <Clipboard
+                  text={getNetworkInfo()}
+                  placeholderIcon={
+                    <ArrowDown class="block group-hover:hidden" size={16} />
+                  }
+                />
+                <span>
+                  {output.network.traffic.received.siValue.toFixed(1)}
+                </span>
+                <span>{output.network.traffic.received.siUnit}</span>
+              </>
+            )}
+          </div>
+        )}
+        {output.audio?.defaultPlaybackDevice && (
+          <div
+            class="provider cursor-pointer"
+            onwheel={(e) => {
+              e.stopPropagation();
+              if (!output.audio?.defaultPlaybackDevice) {
+                return;
+              }
+              if (e.deltaY > 0) {
+                output.audio.setVolume(
+                  output.audio.defaultPlaybackDevice.volume - 2,
+                );
+              }
+              if (e.deltaY < 0) {
+                output.audio.setVolume(
+                  output.audio.defaultPlaybackDevice.volume + 2,
+                );
+              }
+            }}
+            onclick={() => {
+              if (!output.audio?.defaultPlaybackDevice) {
+                return;
+              }
+              output.audio.setMute(!output.audio.defaultPlaybackDevice.isMuted);
+            }}
+          >
+            {output.audio.defaultPlaybackDevice.isMuted ? (
+              <HeadphoneOff size={16} />
+            ) : (
+              <Headphones size={16} />
+            )}
             {/* <span class="max-w-40 overflow-hidden text-ellipsis whitespace-nowrap"> */}
-            <span>{output.audio.defaultPlaybackDevice.name}</span>
             <span>
               {output.audio.defaultPlaybackDevice.isMuted
                 ? 0
                 : output.audio.defaultPlaybackDevice.volume}
               %
             </span>
+            <span>
+              {output.audio.defaultPlaybackDevice.name.match(/\((.*)\)/)?.[1]}
+            </span>
           </div>
         )}
-        {output.cpu && (
+        {output.cpu && output.memory && (
           <div class="provider">
             <Cpu size={16} />
-            <span>{output.cpu.usage.toFixed()}%</span>
-          </div>
-        )}
-        {output.memory && (
-          <div class="provider">
+            <span class="mr-1">{output.cpu.usage.toFixed()}%</span>
             <MemoryStick size={16} />
             <span>{output.memory.usage.toFixed()}%</span>
           </div>
         )}
         {output.date && (
-          <div class="provider">
+          <div class="provider group" title={getDateInfo()}>
+            <Clipboard
+              text={getDateInfo()}
+              placeholderIcon={
+                <Calendar class="block group-hover:hidden" size={16} />
+              }
+            />
+
             <span>{output.date.formatted}</span>
           </div>
         )}

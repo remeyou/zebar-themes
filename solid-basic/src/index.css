@@ -23,5 +23,5 @@ body,
 }
 
 .provider {
-  @apply flex items-center gap-1 rounded bg-gray-200 p-1 dark:bg-gray-800;
+  @apply flex items-center gap-1 rounded bg-gray-200/60 p-1 dark:bg-gray-800/60;
 }
