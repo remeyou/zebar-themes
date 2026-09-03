@@ -1,6 +1,6 @@
 {
   "$schema": "https://github.com/glzr-io/zebar/raw/v3.1.1/resources/zpack-schema.json",
-  "name": "day-n-night",
+  "name": "zebar-themes",
   "version": "0.0.0",
   "description": "",
   "tags": [],
@@ -10,15 +10,15 @@
   "repositoryUrl": "",
   "widgets": [
     {
-      "name": "solid-basic",
-      "htmlPath": "solid-basic/dist/index.html",
+      "name": "sticky-taskbar",
+      "htmlPath": "sticky-taskbar/dist/index.html",
       "zOrder": "normal",
       "shownInTaskbar": false,
       "focused": false,
       "resizable": false,
       "transparent": true,
       "includeFiles": [
-        "solid-basic/dist/**"
+        "sticky-taskbar/dist/**"
       ],
       "caching": {
         "defaultDuration": 604800,
@@ -30,7 +30,7 @@
       "presets": [
         {
           "name": "default",
-          "anchor": "top_left",
+          "anchor": "bottom_left",
           "offsetX": "0px",
           "offsetY": "0px",
           "width": "100%",

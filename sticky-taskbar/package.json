@@ -7,17 +7,17 @@
     "dev": "vite build --watch"
   },
   "dependencies": {
-    "lucide-solid": "^0.536.0",
-    "solid-js": "1.9.2",
+    "lucide-solid": "^1.37.0",
+    "solid-js": "^1.9.15",
     "zebar": "^3.3.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.2.2",
-    "postcss": "^8.5.10",
-    "prettier": "^3.8.3",
+    "@tailwindcss/postcss": "^4.3.3",
+    "postcss": "^8.5.26",
+    "prettier": "^3.9.6",
     "prettier-plugin-organize-imports": "^4.3.0",
-    "prettier-plugin-tailwindcss": "^0.6.14",
-    "tailwindcss": "^4.2.2",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "tailwindcss": "^4.3.3",
     "typescript": "5.3.3",
     "vite": "5.0.11",
     "vite-plugin-solid": "2.8.2"
