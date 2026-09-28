@@ -1,4 +1,3 @@
-import { createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 import { render } from "solid-js/web";
 import * as zebar from "zebar";
@@ -15,6 +14,7 @@ const providers = zebar.createProviderGroup({
   audio: { type: "audio" },
   cpu: { type: "cpu" },
   memory: { type: "memory" },
+  battery: { type: "battery" },
   // systray: { type: "systray" },
   glazewm: { type: "glazewm" },
   ip: { type: "ip" },
@@ -31,11 +31,6 @@ function App() {
   const [output, setOutput] = createStore(providers.outputMap);
   providers.onOutput((outputMap) => setOutput(outputMap));
 
-  createEffect(() => {
-    (window as any).providers = providers;
-    (window as any).output = output;
-  });
-
   return (
     <div class="flex h-8 items-center px-1 text-center text-xs dark:text-white">
       <div class="section">
@@ -45,7 +40,11 @@ function App() {
         <Weather weather={output.weather} ip={output.ip} />
         <Network network={output.network} />
         <Audio audio={output.audio} />
-        <Performance cpu={output.cpu} memory={output.memory} />
+        <Performance
+          cpu={output.cpu}
+          memory={output.memory}
+          battery={output.battery}
+        />
         <Date date={output.date} />
       </div>
     </div>

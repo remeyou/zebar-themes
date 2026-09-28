@@ -9,9 +9,7 @@ export default function Performance(props: { date: zebar.DateOutput | null }) {
       {(date) => (
         <div class="provider group">
           <Clipboard
-            text={(() => {
-              return JSON.stringify(date(), undefined, 2);
-            })()}
+            text={JSON.stringify(date(), undefined, 2)}
             placeholderIcon={
               <Calendar class="block group-hover:hidden" size={16} />
             }

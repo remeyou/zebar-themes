@@ -22,7 +22,6 @@ export default function GlazeWm(props: {
         <>
           <div
             class="provider"
-            title={`Left click: toggle tiling direction\nRight click: redraw all windows.`}
             onclick={() => glazewm().runCommand("toggle-tiling-direction")}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -55,7 +54,7 @@ export default function GlazeWm(props: {
               <For each={glazewm().allWorkspaces}>
                 {(workspace) => (
                   <button
-                    class={`flex min-w-11 cursor-pointer justify-center gap-1 rounded px-2 py-0.5 ${workspace.hasFocus ? "bg-gray-800/10 shadow dark:bg-gray-200/10" : "text-gray-500 dark:text-gray-400"}`}
+                    class={`flex min-w-11 cursor-pointer justify-center gap-1 rounded px-2 py-0.5 ${workspace.hasFocus ? "bg-gray-800/10 shadow dark:bg-gray-200/10" : "text-gray-600 dark:text-gray-400"}`}
                     onclick={() =>
                       glazewm().runCommand(
                         workspace.hasFocus
@@ -94,7 +93,6 @@ export default function GlazeWm(props: {
               <Show when={glazewm().allWorkspaces.length < 9}>
                 <button
                   class="cursor-pointer rounded px-4 py-0.5 text-center text-gray-600 dark:text-gray-400"
-                  title={`Left click: focus workspace\nRight click: move window & focus workspace`}
                   onclick={() => {
                     glazewm().runCommand(
                       `focus --workspace ${getUnusedWorkspaceName(glazewm().allWorkspaces)}`,

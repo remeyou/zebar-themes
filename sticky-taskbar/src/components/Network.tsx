@@ -6,16 +6,7 @@ import Clipboard from "./Clipboard";
 export default function Network(props: {
   network: zebar.NetworkOutput | null;
 }) {
-  const getNetworkInfo = () => {
-    if (!props.network) {
-      return "";
-    }
-    return (
-      JSON.stringify(props.network.traffic, undefined, 2) +
-      "\n" +
-      JSON.stringify(props.network.defaultInterface, undefined, 2)
-    );
-  };
+  const getNetworkInfo = () => JSON.stringify(props.network, undefined, 2);
 
   return (
     <Show when={props.network?.traffic}>
