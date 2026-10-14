@@ -30,7 +30,7 @@
       "presets": [
         {
           "name": "default",
-          "anchor": "bottom_left",
+          "anchor": "top_left",
           "offsetX": "0px",
           "offsetY": "0px",
           "width": "100%",

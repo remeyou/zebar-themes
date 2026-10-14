@@ -4,7 +4,6 @@ import * as zebar from "zebar";
 import Audio from "./components/Audio";
 import Date from "./components/Date";
 import GlazeWm from "./components/GlazeWm";
-import Network from "./components/Network";
 import Performance from "./components/Performance";
 import Weather from "./components/Weather";
 import { useSystemDarkMode } from "./hooks";
@@ -14,12 +13,10 @@ const providers = zebar.createProviderGroup({
   audio: { type: "audio" },
   cpu: { type: "cpu" },
   memory: { type: "memory" },
-  battery: { type: "battery" },
-  // systray: { type: "systray" },
   glazewm: { type: "glazewm" },
   ip: { type: "ip" },
   date: { type: "date", refreshInterval: 5000 },
-  network: { type: "network" },
+  // network: { type: "network" },
   weather: { type: "weather" },
 });
 
@@ -38,13 +35,10 @@ function App() {
       </div>
       <div class="section">
         <Weather weather={output.weather} ip={output.ip} />
-        <Network network={output.network} />
+        {/* [[Bug] Zebar Frequently Requests GPS on Windows 11 · Issue #256 · glzr-io/zebar](https://github.com/glzr-io/zebar/issues/256) */}
+        {/* <Network network={output.network} /> */}
         <Audio audio={output.audio} />
-        <Performance
-          cpu={output.cpu}
-          memory={output.memory}
-          battery={output.battery}
-        />
+        <Performance cpu={output.cpu} memory={output.memory} />
         <Date date={output.date} />
       </div>
     </div>
